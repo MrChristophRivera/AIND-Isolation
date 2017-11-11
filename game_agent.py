@@ -5,6 +5,7 @@ and include the results in your report.
 
 import numpy as np
 
+
 class SearchTimeout(Exception):
     """Subclass base exception for code clarity. """
     pass
@@ -112,11 +113,24 @@ class IsolationPlayer:
         positive value large enough to allow the function to return before the
         timer expires.
     """
+
     def __init__(self, search_depth=3, score_fn=custom_score, timeout=10.):
         self.search_depth = search_depth
         self.score = score_fn
         self.time_left = None
         self.TIMER_THRESHOLD = timeout
+
+
+def is_terminal(game, depth):
+    """Test if terminal move, i.e reached max depth of search or reached the leaves
+    Args:
+        game(isolation.Board): the board
+        depth(int): the current remaining depth allowed
+    Returns:
+        bool: True if terminal
+    """
+
+    return len(game.get_legal_moves()) == 0 or depth == 0
 
 
 class MinimaxPlayer(IsolationPlayer):
@@ -215,63 +229,44 @@ class MinimaxPlayer(IsolationPlayer):
         # TODO: finish this function!
         raise NotImplementedError
 
-
-    def __minimax_decision__(self, game):
-        """Helper function for the minimax algorithm
-        Returns the best action for an agent given the state
-        Args:
-            game(isolation.Board): The current state of the game
-        """
-        moves = game.get_legal_moves()
-
-    def __min_value__(self, game):
+    def __min_value__(self, game, depth):
         """ Helper function for to estimate the other player
         Args:
             game(board.Isolation): a game board
         Returns
             v (int): the utility value given the evaluation function.
         """
-        moves = game.get_legal_moves()
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
 
-        if not moves:
-            return -1
-        v = -np.inf
+        if is_terminal(game, depth):
+            return self.score(game, self)
+
+        v = np.inf
+        moves = game.get_legal_moves()
         for move in moves:
-            v =min(v, self.__max_value__(game.forcast_move(move)))
+            v = min(v, self.__max_value__(game.forcast_move(move), depth - 1))
         return v
 
-
-    def __max_value(self,game):
+    def __max_value(self, game, depth):
         """ Helper function for to pick the moves for our player
                Args:
                    game(board.Isolation): a game board
                Returns
                    v (int): the utility value given the evaluation function.
-
                """
-        moves = game.get_legal_move()
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
 
-        if not moves:
-            return -1
+        if is_terminal(game, depth):
+            return self.score(game, self)
+
         v = -np.inf
+        # pick the best move out of remaining moves
+        moves = game.get_legal_moves()
         for move in moves:
-            v = max(v, self.__min_value__(game.forcast_move(move)))
+            v = max(v, self.__min_value__(game.forcast_move(move), depth - 1))
         return v
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 class AlphaBetaPlayer(IsolationPlayer):

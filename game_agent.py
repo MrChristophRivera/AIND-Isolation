@@ -2,8 +2,8 @@
 test your agent's strength against a set of known agents using tournament.py
 and include the results in your report.
 """
-import random
 
+import numpy as np
 
 class SearchTimeout(Exception):
     """Subclass base exception for code clarity. """
@@ -214,6 +214,64 @@ class MinimaxPlayer(IsolationPlayer):
 
         # TODO: finish this function!
         raise NotImplementedError
+
+
+    def __minimax_decision__(self, game):
+        """Helper function for the minimax algorithm
+        Returns the best action for an agent given the state
+        Args:
+            game(isolation.Board): The current state of the game
+        """
+        moves = game.get_legal_moves()
+
+    def __min_value__(self, game):
+        """ Helper function for to estimate the other player
+        Args:
+            game(board.Isolation): a game board
+        Returns
+            v (int): the utility value given the evaluation function.
+        """
+        moves = game.get_legal_moves()
+
+        if not moves:
+            return -1
+        v = -np.inf
+        for move in moves:
+            v =min(v, self.__max_value__(game.forcast_move(move)))
+        return v
+
+
+    def __max_value(self,game):
+        """ Helper function for to pick the moves for our player
+               Args:
+                   game(board.Isolation): a game board
+               Returns
+                   v (int): the utility value given the evaluation function.
+
+               """
+        moves = game.get_legal_move()
+
+        if not moves:
+            return -1
+        v = -np.inf
+        for move in moves:
+            v = max(v, self.__min_value__(game.forcast_move(move)))
+        return v
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class AlphaBetaPlayer(IsolationPlayer):

@@ -121,18 +121,6 @@ class IsolationPlayer:
         self.TIMER_THRESHOLD = timeout
 
 
-def is_terminal(game, depth):
-    """Test if terminal move, i.e reached max depth of search or reached the leaves
-    Args:
-        game(isolation.Board): the board
-        depth(int): the current remaining depth allowed
-    Returns:
-        bool: True if terminal
-    """
-
-    return len(game.get_legal_moves()) == 0 or depth == 0
-
-
 class MinimaxPlayer(IsolationPlayer):
     """Game-playing agent that chooses a move using depth-limited minimax
     search. You must finish and test this player to make sure it properly uses
@@ -226,8 +214,15 @@ class MinimaxPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        # TODO: finish this function!
-        raise NotImplementedError
+        if self.__is_terminal__(game, depth):
+            return (-1, -1)
+
+        # get the possible actions for the current player
+
+        moves = game.get_legal_moves()
+
+        return max([move for move in moves],
+                   key=lambda move: self.__min_value__(game.forecast_move(move), depth))
 
     def __min_value__(self, game, depth):
         """ Helper function for to estimate the other player
@@ -239,34 +234,48 @@ class MinimaxPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        if is_terminal(game, depth):
+        if self.__is_terminal__(game, depth):
             return self.score(game, self)
 
         v = np.inf
-        moves = game.get_legal_moves()
-        for move in moves:
-            v = min(v, self.__max_value__(game.forcast_move(move), depth - 1))
+        for move in game.get_legal_moves():
+            v = min(v, self.__max_value__(game.forecast_move(move), depth - 1))
         return v
 
-    def __max_value(self, game, depth):
+    def __max_value__(self, game, depth):
         """ Helper function for to pick the moves for our player
                Args:
                    game(board.Isolation): a game board
                Returns
                    v (int): the utility value given the evaluation function.
                """
+
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        if is_terminal(game, depth):
+        if self.__is_terminal__(game, depth):
             return self.score(game, self)
 
         v = -np.inf
         # pick the best move out of remaining moves
-        moves = game.get_legal_moves()
-        for move in moves:
-            v = max(v, self.__min_value__(game.forcast_move(move), depth - 1))
+
+        for move in game.get_legal_moves():
+            v = max(v, self.__min_value__(game.forecast_move(move), depth - 1))
         return v
+
+    def __is_terminal__(self, game, depth):
+        """Test if terminal move, i.e reached max depth of search or reached the leaves
+        Args:
+            game(isolation.Board): the board
+            depth(int): the current remaining depth allowed
+        Returns:
+            bool: True if terminal
+        """
+
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+
+        return len(game.get_legal_moves()) == 0 or depth == 0
 
 
 class AlphaBetaPlayer(IsolationPlayer):

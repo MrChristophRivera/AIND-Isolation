@@ -330,7 +330,7 @@ class AlphaBetaPlayer(IsolationPlayer):
         # Return the best move from the last completed search iteration
         return best_move
 
-    def iterative_search(self,game,time_left):
+    def iterative_search(self, game, time_left):
         """Helper function to implement iterative search using minimax with alpha beta pruning
          Parameters
         ----------
@@ -357,7 +357,7 @@ class AlphaBetaPlayer(IsolationPlayer):
         best_move = (-1, -1)
         while self.time_left() < self.TIMER_THRESHOLD:
             best_move = self.alphabeta(game, depth)
-            depth +1
+            depth + 1
         return best_move
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf")):
@@ -449,10 +449,10 @@ class AlphaBetaPlayer(IsolationPlayer):
         v = -np.inf
 
         for move in game.get_legal_moves():
-            v = max(v, self.min_value(game.forecast_move(move), depth - 1), alpha, beta)
+            v = max(v, self.min_value(game.forecast_move(move), depth - 1, alpha, beta))
             if v >= beta:
                 return v
-            a = max(alpha, v)
+            alpha = max(alpha, v)
         return v
 
     def min_value(self, game, alpha, beta, depth):
@@ -488,7 +488,7 @@ class AlphaBetaPlayer(IsolationPlayer):
         v = np.inf
 
         for move in game.get_legal_moves():
-            v = min(v, self.max_value(game.forecast_move(move), depth - 1), alpha, beta)
+            v = min(v, self.max_value(game.forecast_move(move), depth - 1, alpha, beta))
             if v <= alpha:
                 return v
             beta = min(beta, v)

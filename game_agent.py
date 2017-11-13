@@ -4,6 +4,7 @@ and include the results in your report.
 """
 
 import numpy as np
+from numpy.random import choice
 
 
 class SearchTimeout(Exception):
@@ -214,18 +215,17 @@ class MinimaxPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        if self.__is_terminal__(game, depth):
-            return (-1, -1)
-
         # get the possible actions for the current player
-
         moves = game.get_legal_moves()
 
-        return max([move for move in moves],
-                   key=lambda move: self.__min_value__(game.forecast_move(move), depth))
+        if not moves:
+            return (-1, -1)
 
-    def __min_value__(self, game, depth):
-        """ Helper function for to estimate the other player
+        return max([move for move in moves],
+                   key=lambda move: self.min_value(game.forecast_move(move), depth - 1))
+
+    def min_value(self, game, depth):
+        """ Helper function to pick the move for the other player.
         Args:
             game(board.Isolation): a game board
         Returns
@@ -234,16 +234,16 @@ class MinimaxPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        if self.__is_terminal__(game, depth):
+        if self.is_terminal(game, depth):
             return self.score(game, self)
 
         v = np.inf
         for move in game.get_legal_moves():
-            v = min(v, self.__max_value__(game.forecast_move(move), depth - 1))
+            v = min(v, self.max_value(game.forecast_move(move), depth - 1))
         return v
 
-    def __max_value__(self, game, depth):
-        """ Helper function for to pick the moves for our player
+    def max_value(self, game, depth):
+        """ Helper function that picks the move for our player
                Args:
                    game(board.Isolation): a game board
                Returns
@@ -253,17 +253,16 @@ class MinimaxPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        if self.__is_terminal__(game, depth):
+        if self.is_terminal(game, depth):
             return self.score(game, self)
 
         v = -np.inf
-        # pick the best move out of remaining moves
 
         for move in game.get_legal_moves():
-            v = max(v, self.__min_value__(game.forecast_move(move), depth - 1))
+            v = max(v, self.min_value(game.forecast_move(move), depth - 1))
         return v
 
-    def __is_terminal__(self, game, depth):
+    def is_terminal(self, game, depth):
         """Test if terminal move, i.e reached max depth of search or reached the leaves
         Args:
             game(isolation.Board): the board
@@ -367,5 +366,102 @@ class AlphaBetaPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        # TODO: finish this function!
-        raise NotImplementedError
+        moves = game.get_legal_moves()
+
+        if not moves:
+            return -1, -1
+
+        return max([move for move in moves],
+                   key=lambda move: self.min_value(game.forecast_move(move), alpha, beta, depth - 1))
+
+    def max_value(self, game, alpha, beta, depth):
+        """ Returns the max value for a set of moves for alpha beta search
+        Parameters
+        ----------
+        game : isolation.Board
+            An instance of the Isolation game `Board` class representing the
+            current game state
+
+        depth : int
+            Depth is an integer representing the maximum number of plies to
+            search in the game tree before aborting
+
+        alpha : float
+            Alpha limits the lower bound of search on minimizing layers
+
+        beta : float
+            Beta limits the upper bound of search on maximizing layers
+
+        Returns
+        -------
+            v(float,int): the value
+
+        """
+
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+
+        if self.is_terminal(game, depth):
+            return self.score(game, self)
+
+        v = -np.inf
+
+        for move in game.get_legal_moves():
+            v = max(v, self.min_value(game.forecast_move(move), depth - 1), alpha, beta)
+            if v >= beta:
+                return v
+            a = max(alpha, v)
+        return v
+
+    def min_value(self, game, alpha, beta, depth):
+        """ Returns the min value for a set of moves for alpha beta search
+        Parameters
+        ----------
+        game : isolation.Board
+            An instance of the Isolation game `Board` class representing the
+            current game state
+
+        depth : int
+            Depth is an integer representing the maximum number of plies to
+            search in the game tree before aborting
+
+        alpha : float
+            Alpha limits the lower bound of search on minimizing layers
+
+        beta : float
+            Beta limits the upper bound of search on maximizing layers
+
+        Returns
+        -------
+            v(float,int): the value
+
+        """
+
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+
+        if self.is_terminal(game, depth):
+            return self.score(game, self)
+
+        v = np.inf
+
+        for move in game.get_legal_moves():
+            v = min(v, self.max_value(game.forecast_move(move), depth - 1), alpha, beta)
+            if v <= alpha:
+                return v
+            beta = min(beta, v)
+        return v
+
+    def is_terminal(self, game, depth):
+        """Test if terminal move, i.e reached max depth of search or reached the leaves
+        Args:
+            game(isolation.Board): the board
+            depth(int): the current remaining depth allowed
+        Returns:
+            bool: True if terminal
+        """
+
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+
+        return len(game.get_legal_moves()) == 0 or depth == 0

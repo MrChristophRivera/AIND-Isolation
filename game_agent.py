@@ -315,11 +315,53 @@ class AlphaBetaPlayer(IsolationPlayer):
         """
         self.time_left = time_left
 
-        # TODO: finish this function!
-        raise NotImplementedError
+        # Initialize the best move so that this function returns something
+        # in case the search fails due to timeout
+        best_move = (-1, -1)
+
+        try:
+            # The try/except block will automatically catch the exception
+            # raised when the timer is about to expire.
+            return self.minimax(game, self.search_depth)
+
+        except SearchTimeout:
+            pass  # Handle any actions required after timeout as needed
+
+        # Return the best move from the last completed search iteration
+        return best_move
+
+    def iterative_search(self,game,time_left):
+        """Helper function to implement iterative search using minimax with alpha beta pruning
+         Parameters
+        ----------
+        game : isolation.Board
+            An instance of the Isolation game `Board` class representing the
+            current game state
+
+        time_left : callable
+            A function that returns the number of milliseconds left in the
+            current turn. Returning with any less than 0 ms remaining forfeits
+            the game.
+
+        Returns
+        -------
+        (int, int)
+            The board coordinates of the best move found in the current search;
+            (-1, -1) if there are no legal moves
+
+        """
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+
+        depth = 1
+        best_move = (-1, -1)
+        while self.time_left() < self.TIMER_THRESHOLD:
+            best_move = self.alphabeta(game, depth)
+            depth +1
+        return best_move
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf")):
-        """Implement depth-limited minimax search with alpha-beta pruning as
+        """Implements depth-limited minimax search with alpha-beta pruning as
         described in the lectures.
 
         This should be a modified version of ALPHA-BETA-SEARCH in the AIMA text

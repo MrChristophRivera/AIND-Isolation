@@ -219,7 +219,7 @@ class MinimaxPlayer(IsolationPlayer):
         moves = game.get_legal_moves()
 
         if not moves:
-            return (-1, -1)
+            return -1, -1
 
         return max([move for move in moves],
                    key=lambda move: self.min_value(game.forecast_move(move), depth - 1))
@@ -350,14 +350,15 @@ class AlphaBetaPlayer(IsolationPlayer):
             (-1, -1) if there are no legal moves
 
         """
-        if self.time_left() < self.TIMER_THRESHOLD:
-            raise SearchTimeout()
-
+        best_move = -1,1
         depth = 1
-        best_move = (-1, -1)
-        while self.time_left() < self.TIMER_THRESHOLD:
-            best_move = self.alphabeta(game, depth)
-            depth + 1
+        try:
+            while True:
+                best_move = self.alphabeta(game, depth)
+                depth += 1
+        except SearchTimeout:
+            pass
+
         return best_move
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf")):

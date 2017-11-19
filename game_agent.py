@@ -315,15 +315,25 @@ class AlphaBetaPlayer(IsolationPlayer):
         """
         self.time_left = time_left
 
+
+
         # Initialize the best move so that this function returns something
         # in case the search fails due to timeout
-        best_move = -1, -1
+        moves = game.get_legal_moves()
+
+        if not moves:
+            return -1, -1
+
+        best_move = moves[0]
+
+        # The try/except block will automatically catch the exception
+        # raised when the timer is about to expire.
+
 
         try:
+            # while there is time left on the clock do an iterative search with alpha beta
 
             depth = 1
-            # The try/except block will automatically catch the exception
-            # raised when the timer is about to expire.
             while True:
                 best_move = self.alphabeta(game, depth)
                 depth +=1
@@ -382,28 +392,24 @@ class AlphaBetaPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
+
         moves = game.get_legal_moves()
 
         if not moves:
             return -1, -1
 
-        # set the best move and best val
-        max_v = -np.inf
-        best_move = -1,-1
+        best_move = moves[0]
+        high_score = -np.inf
 
-        # do max search of first node
-        for move in moves:
-            v = self.min_value(game.forecast_move(move), depth - 1, alpha, beta)
-            if v >= max_v:
-                max_v = v
-                best_move = move
+        # Do max search of the first node. Alpha is the worst case value of maximum.
+        for m in moves:
+            v = self.min_value(game.forecast_move(m), depth - 1, alpha, beta)
+            if v > high_score:
+                high_score = v
+                best_move = m
+            alpha = max(alpha, high_score)
 
-            alpha = max(alpha, max_v)
         return best_move
-
-
-        #return max([move for move in moves],
-        #           key=lambda move: self.max_value(game.forecast_move(move), alpha, beta, depth - 1))
 
     def max_value(self, game, alpha, beta, depth):
         """ Returns the max value for a set of moves for alpha beta search
@@ -432,13 +438,14 @@ class AlphaBetaPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
+        # if terminal condition met, return the score for percolation up
         if self.is_terminal(game, depth):
             return self.score(game, self)
 
         v = -np.inf
 
         for move in game.get_legal_moves():
-            v = max(v, self.min_value(game.forecast_move(move), depth - 1, alpha, beta))
+            v = max(v, self.min_value(game.forecast_move(move), alpha, beta, depth - 1))
             if v >= beta:
                 return v
             alpha = max(alpha, v)
@@ -471,13 +478,14 @@ class AlphaBetaPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
+        # if terminal condition met, return the score for percolation up
         if self.is_terminal(game, depth):
             return self.score(game, self)
 
         v = np.inf
 
         for move in game.get_legal_moves():
-            v = min(v, self.max_value(game.forecast_move(move), depth - 1, alpha, beta))
+            v = min(v, self.max_value(game.forecast_move(move), alpha, beta, depth - 1))
             if v <= alpha:
                 return v
             beta = min(beta, v)
@@ -495,4 +503,4 @@ class AlphaBetaPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        return len(game.get_legal_moves()) == 0 or depth == 0
+        return depth == 0 or not game.get_legal_moves()

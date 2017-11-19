@@ -392,7 +392,6 @@ class AlphaBetaPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-
         moves = game.get_legal_moves()
 
         if not moves:
@@ -402,11 +401,11 @@ class AlphaBetaPlayer(IsolationPlayer):
         high_score = -np.inf
 
         # Do max search of the first node. Alpha is the worst case value of maximum.
-        for m in moves:
-            v = self.min_value(game.forecast_move(m), depth - 1, alpha, beta)
+        for move in moves:
+            v = self.min_value(game.forecast_move(move), depth - 1, alpha, beta)
             if v > high_score:
                 high_score = v
-                best_move = m
+                best_move = move
             alpha = max(alpha, high_score)
 
         return best_move

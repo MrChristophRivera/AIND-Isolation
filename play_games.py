@@ -101,6 +101,23 @@ def play_greedy_minimax_game():
     print(winner)
     #print_history(players, winner, history, outcome)
 
+def play_greedy_minimax_game():
+    """ a game for me to understand"""
+
+    p2 = GreedyPlayer()
+    p1 = MinimaxPlayer(score_fn=open_move_score, search_depth=2)
+    # hash to reference
+
+    players = {p1: 1, p2: 2}
+    game = isolation.Board(p1, p2)
+    game.apply_move((3, 3))
+    game.apply_move((0, 5))
+    winner, history, outcome = game.play()
+    print(outcome)
+    print(winner)
+    #print_history(players, winner, history, outcome)
+
+
 
 if __name__ == '__main__':
     play_greedy_minimax_game()

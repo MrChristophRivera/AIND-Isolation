@@ -317,48 +317,21 @@ class AlphaBetaPlayer(IsolationPlayer):
 
         # Initialize the best move so that this function returns something
         # in case the search fails due to timeout
-        best_move = (-1, -1)
+        best_move = -1, -1
 
         try:
+
+            depth = 1
             # The try/except block will automatically catch the exception
             # raised when the timer is about to expire.
-            return self.minimax(game, self.search_depth)
+            while True:
+                best_move = self.alphabeta(game, depth)
+                depth +=1
 
         except SearchTimeout:
             pass  # Handle any actions required after timeout as needed
 
         # Return the best move from the last completed search iteration
-        return best_move
-
-    def iterative_search(self, game, time_left):
-        """Helper function to implement iterative search using minimax with alpha beta pruning
-         Parameters
-        ----------
-        game : isolation.Board
-            An instance of the Isolation game `Board` class representing the
-            current game state
-
-        time_left : callable
-            A function that returns the number of milliseconds left in the
-            current turn. Returning with any less than 0 ms remaining forfeits
-            the game.
-
-        Returns
-        -------
-        (int, int)
-            The board coordinates of the best move found in the current search;
-            (-1, -1) if there are no legal moves
-
-        """
-        best_move = -1,1
-        depth = 1
-        try:
-            while True:
-                best_move = self.alphabeta(game, depth)
-                depth += 1
-        except SearchTimeout:
-            pass
-
         return best_move
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf")):
@@ -414,8 +387,23 @@ class AlphaBetaPlayer(IsolationPlayer):
         if not moves:
             return -1, -1
 
-        return max([move for move in moves],
-                   key=lambda move: self.min_value(game.forecast_move(move), alpha, beta, depth - 1))
+        # set the best move and best val
+        max_v = -np.inf
+        best_move = -1,-1
+
+        # do max search of first node
+        for move in moves:
+            v = self.min_value(game.forecast_move(move), depth - 1, alpha, beta)
+            if v >= max_v:
+                max_v = v
+                best_move = move
+
+            alpha = max(alpha, max_v)
+        return best_move
+
+
+        #return max([move for move in moves],
+        #           key=lambda move: self.max_value(game.forecast_move(move), alpha, beta, depth - 1))
 
     def max_value(self, game, alpha, beta, depth):
         """ Returns the max value for a set of moves for alpha beta search

@@ -402,7 +402,7 @@ class AlphaBetaPlayer(IsolationPlayer):
 
         # Do max search of the first node. Alpha is the worst case value of maximum.
         for move in moves:
-            v = self.min_value(game.forecast_move(move), depth - 1, alpha, beta)
+            v = self.min_value(game.forecast_move(move), depth - 1, alpha, beta )
             if v > high_score:
                 high_score = v
                 best_move = move
@@ -410,7 +410,7 @@ class AlphaBetaPlayer(IsolationPlayer):
 
         return best_move
 
-    def max_value(self, game, alpha, beta, depth):
+    def max_value(self, game, depth,  alpha, beta):
         """ Returns the max value for a set of moves for alpha beta search
         Parameters
         ----------
@@ -444,13 +444,13 @@ class AlphaBetaPlayer(IsolationPlayer):
         v = -np.inf
 
         for move in game.get_legal_moves():
-            v = max(v, self.min_value(game.forecast_move(move), alpha, beta, depth - 1))
+            v = max(v, self.min_value(game.forecast_move(move), depth - 1, alpha, beta))
             if v >= beta:
                 return v
             alpha = max(alpha, v)
         return v
 
-    def min_value(self, game, alpha, beta, depth):
+    def min_value(self, game, depth, alpha, beta):
         """ Returns the min value for a set of moves for alpha beta search
         Parameters
         ----------
@@ -484,7 +484,7 @@ class AlphaBetaPlayer(IsolationPlayer):
         v = np.inf
 
         for move in game.get_legal_moves():
-            v = min(v, self.max_value(game.forecast_move(move), alpha, beta, depth - 1))
+            v = min(v, self.max_value(game.forecast_move(move), depth - 1, alpha, beta))
             if v <= alpha:
                 return v
             beta = min(beta, v)

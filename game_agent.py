@@ -36,8 +36,15 @@ def custom_score(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    # TODO: finish this function!
-    raise NotImplementedError
+    if game.is_loser(player):
+        return float("-inf")
+
+    if game.is_winner(player):
+        return float("inf")
+
+    own_moves = len(game.get_legal_moves(player))
+    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
+    return float(own_moves - 0.5*opp_moves)
 
 
 def custom_score_2(game, player):
@@ -62,8 +69,16 @@ def custom_score_2(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    # TODO: finish this function!
-    raise NotImplementedError
+
+    if game.is_loser(player):
+        return float("-inf")
+
+    if game.is_winner(player):
+        return float("inf")
+
+    own_moves = len(game.get_legal_moves(player))
+    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
+    return float(own_moves - 2*opp_moves)
 
 
 def custom_score_3(game, player):
@@ -88,8 +103,23 @@ def custom_score_3(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    # TODO: finish this function!
-    raise NotImplementedError
+    if game.is_loser(player):
+        return float("-inf")
+
+    if game.is_winner(player):
+        return float("inf")
+
+    own_moves = len(game.get_legal_moves(player))
+    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
+    score_diff = (own_moves - opp_moves)
+
+    w, h = game.width / 2., game.height / 2.
+    y, x = game.get_player_location(player)
+
+    dist_score = float((h - y) ** 2 + (w - x) ** 2)
+
+    return 0.75*score_diff+0.25*dist_score
+
 
 
 class IsolationPlayer:
@@ -329,10 +359,8 @@ class AlphaBetaPlayer(IsolationPlayer):
         # The try/except block will automatically catch the exception
         # raised when the timer is about to expire.
 
-
         try:
             # while there is time left on the clock do an iterative search with alpha beta
-
             depth = 1
             while True:
                 best_move = self.alphabeta(game, depth)
@@ -389,7 +417,7 @@ class AlphaBetaPlayer(IsolationPlayer):
                 each helper function or else your agent will timeout during
                 testing.
         """
-        if self.time_left() < self.TIMER_THRESHOLD:
+        if self.time_left() < self.TIMER_THRESHOLD*.95:
             raise SearchTimeout()
 
         moves = game.get_legal_moves()
@@ -434,7 +462,7 @@ class AlphaBetaPlayer(IsolationPlayer):
 
         """
 
-        if self.time_left() < self.TIMER_THRESHOLD:
+        if self.time_left() < self.TIMER_THRESHOLD*0.95:
             raise SearchTimeout()
 
         # if terminal condition met, return the score for percolation up
@@ -474,7 +502,7 @@ class AlphaBetaPlayer(IsolationPlayer):
 
         """
 
-        if self.time_left() < self.TIMER_THRESHOLD:
+        if self.time_left() < self.TIMER_THRESHOLD*.95:
             raise SearchTimeout()
 
         # if terminal condition met, return the score for percolation up

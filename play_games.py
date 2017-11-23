@@ -1,8 +1,20 @@
 # This script is for playing my own games.
 from isolation import isolation
-from sample_players import GreedyPlayer, RandomPlayer, open_move_score
 import timeit
-from game_agent import  MinimaxPlayer
+import itertools
+import random
+import warnings
+
+from collections import namedtuple
+
+from isolation import Board
+
+from sample_players import (RandomPlayer, open_move_score,
+                            improved_score, center_score, GreedyPlayer)
+from game_agent import (MinimaxPlayer, AlphaBetaPlayer, custom_score,
+                        custom_score_2, custom_score_3)
+
+
 
 def print_history(players, winner, history, outcome):
     print('The game starts\n')

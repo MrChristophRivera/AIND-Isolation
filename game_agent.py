@@ -4,7 +4,6 @@ and include the results in your report.
 """
 
 import numpy as np
-from numpy.random import choice
 
 
 class SearchTimeout(Exception):
@@ -31,6 +30,9 @@ def custom_score(game, player):
         A player instance in the current game (i.e., an object corresponding to
         one of the player objects `game.__player_1__` or `game.__player_2__`.)
 
+    weight : float
+        A weight to affect the scoring function by multiplying the opponent number of moves
+
     Returns
     -------
     float
@@ -44,7 +46,15 @@ def custom_score(game, player):
 
     own_moves = len(game.get_legal_moves(player))
     opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
-    return float(own_moves - 0.5*opp_moves)
+
+    score_diff = (own_moves - 8.25 * opp_moves)
+
+    w, h = game.width / 2., game.height / 2.
+    y, x = game.get_player_location(player)
+
+    dist_score = float((h - y) ** 2 + (w - x) ** 2)
+
+    return 0.16 * score_diff + (1 - 0.16) * dist_score
 
 
 def custom_score_2(game, player):
@@ -63,6 +73,7 @@ def custom_score_2(game, player):
     player : object
         A player instance in the current game (i.e., an object corresponding to
         one of the player objects `game.__player_1__` or `game.__player_2__`.)
+    exponent
 
     Returns
     -------
@@ -78,7 +89,7 @@ def custom_score_2(game, player):
 
     own_moves = len(game.get_legal_moves(player))
     opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
-    return float(own_moves - 2*opp_moves)
+    return float(own_moves - 0.95 * opp_moves)
 
 
 def custom_score_3(game, player):
@@ -98,6 +109,8 @@ def custom_score_3(game, player):
         A player instance in the current game (i.e., an object corresponding to
         one of the player objects `game.__player_1__` or `game.__player_2__`.)
 
+    opp_weight: float
+
     Returns
     -------
     float
@@ -111,15 +124,7 @@ def custom_score_3(game, player):
 
     own_moves = len(game.get_legal_moves(player))
     opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
-    score_diff = (own_moves - opp_moves)
-
-    w, h = game.width / 2., game.height / 2.
-    y, x = game.get_player_location(player)
-
-    dist_score = float((h - y) ** 2 + (w - x) ** 2)
-
-    return 0.75*score_diff+0.25*dist_score
-
+    return float(own_moves - 2.26 * opp_moves)
 
 
 class IsolationPlayer:
@@ -345,8 +350,6 @@ class AlphaBetaPlayer(IsolationPlayer):
         """
         self.time_left = time_left
 
-
-
         # Initialize the best move so that this function returns something
         # in case the search fails due to timeout
         moves = game.get_legal_moves()
@@ -364,7 +367,7 @@ class AlphaBetaPlayer(IsolationPlayer):
             depth = 1
             while True:
                 best_move = self.alphabeta(game, depth)
-                depth +=1
+                depth += 1
 
         except SearchTimeout:
             pass  # Handle any actions required after timeout as needed
@@ -417,7 +420,7 @@ class AlphaBetaPlayer(IsolationPlayer):
                 each helper function or else your agent will timeout during
                 testing.
         """
-        if self.time_left() < self.TIMER_THRESHOLD*.95:
+        if self.time_left() < self.TIMER_THRESHOLD * .95:
             raise SearchTimeout()
 
         moves = game.get_legal_moves()
@@ -430,7 +433,7 @@ class AlphaBetaPlayer(IsolationPlayer):
 
         # Do max search of the first node. Alpha is the worst case value of maximum.
         for move in moves:
-            v = self.min_value(game.forecast_move(move), depth - 1, alpha, beta )
+            v = self.min_value(game.forecast_move(move), depth - 1, alpha, beta)
             if v > high_score:
                 high_score = v
                 best_move = move
@@ -438,7 +441,7 @@ class AlphaBetaPlayer(IsolationPlayer):
 
         return best_move
 
-    def max_value(self, game, depth,  alpha, beta):
+    def max_value(self, game, depth, alpha, beta):
         """ Returns the max value for a set of moves for alpha beta search
         Parameters
         ----------
@@ -462,7 +465,7 @@ class AlphaBetaPlayer(IsolationPlayer):
 
         """
 
-        if self.time_left() < self.TIMER_THRESHOLD*0.95:
+        if self.time_left() < self.TIMER_THRESHOLD * 0.95:
             raise SearchTimeout()
 
         # if terminal condition met, return the score for percolation up
@@ -502,7 +505,7 @@ class AlphaBetaPlayer(IsolationPlayer):
 
         """
 
-        if self.time_left() < self.TIMER_THRESHOLD*.95:
+        if self.time_left() < self.TIMER_THRESHOLD * .95:
             raise SearchTimeout()
 
         # if terminal condition met, return the score for percolation up

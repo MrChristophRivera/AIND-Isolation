@@ -534,3 +534,4 @@ class AlphaBetaPlayer(IsolationPlayer):
             raise SearchTimeout()
 
         return depth == 0 or not game.get_legal_moves()
+

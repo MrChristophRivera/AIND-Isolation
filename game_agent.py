@@ -17,8 +17,7 @@ def custom_score(game, player):
 
     This should be the best heuristic function for your project submission.
 
-    Note: this function should be called from within a Player instance as
-    `self.score()` -- you should not need to call this function directly.
+    The heuristic combines the difference in number of moves between the opponent and player and
 
     Parameters
     ----------
@@ -29,10 +28,6 @@ def custom_score(game, player):
     player : object
         A player instance in the current game (i.e., an object corresponding to
         one of the player objects `game.__player_1__` or `game.__player_2__`.)
-
-    weight : float
-        A weight to affect the scoring function by multiplying the opponent number of moves
-
     Returns
     -------
     float
@@ -59,10 +54,8 @@ def custom_score(game, player):
 
 def custom_score_2(game, player):
     """Calculate the heuristic value of a game state from the point of view
-    of the given player.
-
-    Note: this function should be called from within a Player instance as
-    `self.score()` -- you should not need to call this function directly.
+    of the given player. The hueristic is virtually the same as the basic one.
+    It is player_moves - 2.24*opponent moves.
 
     Parameters
     ----------
@@ -89,15 +82,13 @@ def custom_score_2(game, player):
 
     own_moves = len(game.get_legal_moves(player))
     opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
-    return float(own_moves - 0.95 * opp_moves)
+    return float(own_moves - 0.99 * opp_moves)
 
 
 def custom_score_3(game, player):
     """Calculate the heuristic value of a game state from the point of view
-    of the given player.
-
-    Note: this function should be called from within a Player instance as
-    `self.score()` -- you should not need to call this function directly.
+    of the given player. The heuristic is the (player_moves-opponent_moves)^-2.04 time the sign of the
+    difference in scores.
 
     Parameters
     ----------
@@ -109,7 +100,6 @@ def custom_score_3(game, player):
         A player instance in the current game (i.e., an object corresponding to
         one of the player objects `game.__player_1__` or `game.__player_2__`.)
 
-    opp_weight: float
 
     Returns
     -------
@@ -124,7 +114,8 @@ def custom_score_3(game, player):
 
     own_moves = len(game.get_legal_moves(player))
     opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
-    return float(own_moves - 2.26 * opp_moves)
+    k =2.04
+    return float(own_moves - opp_moves) ** k * np.sign(own_moves - opp_moves)
 
 
 class IsolationPlayer:

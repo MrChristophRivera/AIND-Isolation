@@ -66,7 +66,6 @@ def custom_score_2(game, player):
     player : object
         A player instance in the current game (i.e., an object corresponding to
         one of the player objects `game.__player_1__` or `game.__player_2__`.)
-    exponent
 
     Returns
     -------
@@ -114,8 +113,8 @@ def custom_score_3(game, player):
 
     own_moves = len(game.get_legal_moves(player))
     opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
-    k =0.99
-    return float(own_moves - opp_moves) ** k * np.sign(own_moves - opp_moves)
+    k = 0.99
+    return float((own_moves - opp_moves) ** k * np.sign(own_moves - opp_moves))
 
 
 class IsolationPlayer:
@@ -254,6 +253,7 @@ class MinimaxPlayer(IsolationPlayer):
         """ Helper function to pick the move for the other player.
         Args:
             game(board.Isolation): a game board
+            depth(int): current depth of search.
         Returns
             v (int): the utility value given the evaluation function.
         """
@@ -272,6 +272,7 @@ class MinimaxPlayer(IsolationPlayer):
         """ Helper function that picks the move for our player
                Args:
                    game(board.Isolation): a game board
+                   depth(int): current depth of search
                Returns
                    v (int): the utility value given the evaluation function.
                """
@@ -525,4 +526,3 @@ class AlphaBetaPlayer(IsolationPlayer):
             raise SearchTimeout()
 
         return depth == 0 or not game.get_legal_moves()
-
